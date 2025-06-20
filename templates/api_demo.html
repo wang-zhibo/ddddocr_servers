@@ -6,22 +6,20 @@
     margin-bottom: 2.2rem;
   }
   .api-demo-hero-title {
-    font-size: 2.6rem;
+    font-size: 1.3rem;
     font-weight: 900;
-    background: linear-gradient(90deg,#0d6efd 10%,#00eaff 90%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    background: none;
+    color: #fff;
     letter-spacing: 3px;
     margin-bottom: 0.5rem;
     text-shadow: 0 4px 24px #0d6efd33, 0 2px 8px #fff2;
     line-height: 1.15;
   }
   .api-demo-hero-desc {
-    color: #b2b8c6;
+    color: #fff;
     font-size: 1.18rem;
     margin-bottom: 0.2rem;
-    letter-spacing: 1.2px;
+    letter-spacing: 0.5px;
     font-weight: 500;
     text-shadow: 0 2px 8px #0d6efd11;
   }
@@ -29,7 +27,7 @@
     color: #fff;
     font-size: 1.08rem;
     margin-bottom: 0.5rem;
-    letter-spacing: 1.2px;
+    letter-spacing: 0.5px;
     font-weight: 500;
     text-shadow: 0 2px 8px #0d6efd11;
   }
@@ -67,13 +65,14 @@
   .api-demo-block:hover {
     box-shadow: 0 4px 24px 0 #0d6efd33;
     border: 1.5px solid #0d6efd44;
+    color: #fff;
   }
   .api-demo-block .block-title {
     display: flex;
     align-items: center;
     gap: 0.5em;
     font-weight: 700;
-    color: #0d6efd;
+    color: #fff !important;
     margin-bottom: 0.7em;
     font-size: 1.08em;
     letter-spacing: 1px;
@@ -122,16 +121,17 @@
     .api-demo-group { flex-direction: column; align-items: stretch; }
     .api-demo-block { max-width: 100%; }
     .copy-tip { right: 10px; top: 70px; font-size: 1em; padding: 0.5em 1em; }
-    .api-demo-hero-title { font-size: 1.5rem; }
+    .api-demo-hero-title { font-size: 0.75rem; }
   }
-  .api-demo-block pre {
+  /* 直接作用于所有pre标签 */
+  pre {
     margin: 1.2em 0;
-    background: #23283a;
+    background: #181f2a;
     color: #fff;
     border-radius: 0.7em;
     border: 1.5px solid #23283a;
-    box-shadow: 0 2px 12px 0 #0d6efd11 inset;
-    font-size: 1.13em;
+    box-shadow: 0 2px 12px 0 #0d6efd22 inset;
+    font-size: 0.77em;
     padding: 1.2em 1.5em 1.2em 2.2em;
     white-space: pre-wrap;
     word-break: break-all;
@@ -139,8 +139,9 @@
     font-family: 'Fira Mono', 'Consolas', monospace;
     transition: border 0.18s, box-shadow 0.18s;
     position: relative;
+    overflow-x: auto;
   }
-  .api-demo-block pre::before {
+  pre::before {
     content: "";
     position: absolute;
     left: 0.8em;
@@ -150,6 +151,13 @@
     border-radius: 3px;
     background: linear-gradient(180deg,#0d6efd 0%,#00eaff 100%);
     opacity: 0.7;
+  }
+  pre .hl-key,
+  pre .hl-str,
+  pre .hl-com {
+    color: #fff;
+    font-weight: normal;
+    font-style: normal;
   }
   .api-demo-block pre::-webkit-scrollbar {
     height: 8px;
@@ -164,9 +172,13 @@
     border: 1.5px solid #0d6efd44;
     box-shadow: 0 4px 24px 0 #0d6efd22 inset;
   }
+  .block-title,
+  .block-title * {
+    color: #fff !important;
+  }
 </style>
 <div class="api-demo-hero">
-  <div class="logo-center" style="font-size:2.5rem;">🦉</div>
+  <!-- <div class="logo-center" style="font-size:2.5rem;">🦉</div> -->
   <div class="api-demo-hero-title">API 调用示例</div>
   <div class="api-demo-hero-desc">多语言调用验证码识别API，极速接入，安全可靠</div>
   <div class="api-demo-hero-tip">接口地址 <span style="color:#0d6efd">/ocr</span>，API Key 可在"个人中心"获取</div>
@@ -177,32 +189,32 @@
     <div class="api-demo-group" style="flex-direction:column;gap:0;align-items:stretch;">
       <div style="margin-bottom:1.5em;">
         <div class="block-title" style="margin-bottom:0.5em;"><span class="icon">💻</span>curl 示例 <button class="copy-btn" style="position:static;float:right;margin-left:1em;" onclick="copyDemo('curl-demo')">复制</button></div>
-        <pre id="curl-demo">curl -X POST \
-  -H "x-api-key: &lt;你的API_KEY&gt;" \
-  -F "file=@captcha.png" \
-  http://127.0.0.1:8000/ocr
+        <pre id="curl-demo"><span class="hl-key">curl</span> -X POST \
+  -H <span class="hl-str">"x-api-key: &lt;你的API_KEY&gt;"</span> \
+  -F <span class="hl-str">"file=@captcha.png"</span> \
+  <span class="hl-str">http://127.0.0.1:8000/ocr</span>
 </pre>
       </div>
       <div style="margin-bottom:1.5em;">
         <div class="block-title" style="margin-bottom:0.5em;"><span class="icon">🐍</span>Python requests 示例 <button class="copy-btn" style="position:static;float:right;margin-left:1em;" onclick="copyDemo('python-demo')">复制</button></div>
-        <pre id="python-demo">import requests
-headers = {"x-api-key": "&lt;你的API_KEY&gt;"}
-files = {"file": open("captcha.png", "rb")}
-r = requests.post("http://127.0.0.1:8000/ocr", headers=headers, files=files)
-print(r.json())
+        <pre id="python-demo"><span class="hl-key">import</span> requests
+headers = {<span class="hl-str">"x-api-key": "&lt;你的API_KEY&gt;"</span>}
+files = {<span class="hl-str">"file"</span>: open(<span class="hl-str">"captcha.png"</span>, <span class="hl-str">"rb"</span>)}
+r = requests.post(<span class="hl-str">"http://127.0.0.1:8000/ocr"</span>, headers=headers, files=files)
+<span class="hl-key">print</span>(r.json())
 </pre>
       </div>
       <div>
         <div class="block-title" style="margin-bottom:0.5em;"><span class="icon">🌐</span>JavaScript fetch 示例 <button class="copy-btn" style="position:static;float:right;margin-left:1em;" onclick="copyDemo('js-demo')">复制</button></div>
-        <pre id="js-demo">const formData = new FormData();
-formData.append('file', fileInput.files[0]);
-fetch('http://127.0.0.1:8000/ocr', {
-  method: 'POST',
-  headers: { 'x-api-key': '&lt;你的API_KEY&gt;' },
+        <pre id="js-demo"><span class="hl-key">const</span> formData = <span class="hl-key">new</span> FormData();
+formData.append(<span class="hl-str">'file'</span>, fileInput.files[0]);
+fetch(<span class="hl-str">'http://127.0.0.1:8000/ocr'</span>, {
+  method: <span class="hl-str">'POST'</span>,
+  headers: { <span class="hl-str">'x-api-key'</span>: <span class="hl-str">'&lt;你的API_KEY&gt;'</span> },
   body: formData
 })
 .then(res => res.json())
-.then(data => console.log(data));
+.then(data => <span class="hl-key">console</span>.log(data));
 </pre>
       </div>
     </div>
