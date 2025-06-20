@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+  .card-minimal {
+    background: #181f2a;
+    border-radius: 1.5rem;
+    box-shadow: 0 4px 32px 0 #0d6efd11;
+    border: none;
+    padding: 2.5rem 2rem 2rem 2rem;
+    max-width: 440px;
+    margin: 0 auto;
+  }
+  .logo-center { text-align: center; margin-bottom: 1.2rem; font-size: 2.2rem; }
+  .title-center { text-align: center; color: #fff; font-weight: 800; font-size: 1.5rem; margin-bottom: 1.5rem; letter-spacing: 1px; }
+  .form-label { color: #b2b8c6; font-weight: 600; }
+  .form-control {
+    background: #23283a;
+    color: #fff;
+    border: 1.5px solid #23283a;
+    border-radius: 1.2em;
+    font-size: 1.08rem;
+    margin-bottom: 1.2rem;
+  }
+  .form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 2px #0d6efd33;
+    background: #23283a;
+    color: #fff;
+  }
+  .btn-minimal {
+    width: 100%;
+    border-radius: 2em;
+    background: #0d6efd;
+    color: #fff;
+    font-weight: 700;
+    font-size: 1.1rem;
+    padding: 0.7em 0;
+    border: none;
+    box-shadow: 0 2px 12px 0 #0d6efd22;
+    transition: background 0.18s, box-shadow 0.18s;
+  }
+  .btn-minimal:hover {
+    background: #005bea;
+    box-shadow: 0 4px 24px 0 #0d6efd44;
+  }
+  .preview-img {
+    display: block;
+    margin: 1.2rem auto 0 auto;
+    max-width: 180px;
+    max-height: 80px;
+    border-radius: 0.7em;
+    box-shadow: 0 2px 12px 0 #0d6efd22;
+    background: #23283a;
+    object-fit: contain;
+  }
+</style>
+<div class="d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+  <div class="card card-minimal">
+    <div class="logo-center">🦉</div>
+    <div class="title-center">验证码识别</div>
+    <form method="post" action="/ocr_page" enctype="multipart/form-data" id="ocr-form">
+      <label for="file" class="form-label">上传验证码图片</label>
+      <input type="file" class="form-control" id="file" name="file" required accept="image/*" onchange="previewImage(event)">
+      <button type="submit" class="btn btn-minimal">识别</button>
+    </form>
+    {% if img_b64 %}
+      <img id="preview" class="preview-img" src="{{ img_b64 }}" alt="预览"/>
+    {% else %}
+      <img id="preview" class="preview-img" style="display:none;" alt="预览"/>
+    {% endif %}
+    {% if result %}
+    <div class="alert alert-success mt-3 text-center">识别结果：<strong>{{ result }}</strong></div>
+    {% endif %}
+    {% if error %}
+    <div class="alert alert-danger mt-3 text-center">{{ error }}</div>
+    {% endif %}
+  </div>
+</div>
+<script>
+function previewImage(event) {
+  var input = event.target;
+  var preview = document.getElementById('preview');
+  if (input.files && input.files[0]) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      preview.src = e.target.result;
+      preview.style.display = 'block';
+    }
+    reader.readAsDataURL(input.files[0]);
+  } else {
+    preview.src = '';
+    preview.style.display = 'none';
+  }
+}
+// 新增：表单提交前检查登录
+const ocrForm = document.getElementById('ocr-form');
+ocrForm.addEventListener('submit', function(e) {
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+  }
+  if (!getCookie('api_key')) {
+    e.preventDefault();
+    window.location.href = '/login';
+    return false;
+  }
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+  .card-minimal {
+    background: #181f2a;
+    border-radius: 1.5rem;
+    box-shadow: 0 4px 32px 0 #0d6efd11;
+    border: none;
+    padding: 2.5rem 2rem 2rem 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .logo-center { text-align: center; margin-bottom: 1.2rem; font-size: 2.2rem; }
+  .title-center { text-align: center; color: #fff; font-weight: 800; font-size: 1.5rem; margin-bottom: 1.5rem; letter-spacing: 1px; }
+  .info-card {
+    background: #23283a;
+    border-radius: 1em;
+    padding: 1.2em 1.5em;
+    margin-bottom: 1.2em;
+    box-shadow: 0 2px 12px 0 #0d6efd11;
+    color: #fff;
+    font-size: 1.08rem;
+    word-break: break-all;
+    position: relative;
+  }
+  .username-label { color: #b2b8c6; font-weight: 600; margin-bottom: 0.5em; }
+  .username-value { font-size: 1.2em; color: #fff; font-weight: bold; }
+  .balance-label { color: #b2b8c6; font-weight: 600; margin-bottom: 0.5em; }
+  .balance-value { font-size: 1.5em; color: #0d6efd; font-weight: bold; }
+  .balance-bar-bg {
+    background: #23283a;
+    border-radius: 1em;
+    height: 16px;
+    margin-top: 0.7em;
+    margin-bottom: 0.2em;
+    box-shadow: 0 2px 8px 0 #0d6efd11 inset;
+    overflow: hidden;
+  }
+  .balance-bar {
+    background: linear-gradient(90deg,#0d6efd 10%,#00eaff 90%);
+    height: 100%;
+    border-radius: 1em;
+    transition: width 0.5s;
+  }
+  .apikey-label { color: #b2b8c6; font-weight: 600; margin-bottom: 0.5em; }
+  .apikey-value { font-size: 1.1em; color: #fff; background: #101522; border-radius: 0.5em; padding: 0.2em 0.7em; word-break: break-all; }
+  .copy-btn-apikey {
+    position: absolute;
+    top: 1.2em;
+    right: 1.5em;
+    background: linear-gradient(90deg,#0d6efd,#005bea);
+    color: #fff;
+    border: none;
+    border-radius: 1em;
+    padding: 0.2em 1.1em;
+    font-size: 0.95em;
+    cursor: pointer;
+    transition: background 0.18s;
+    box-shadow: 0 2px 8px 0 #0d6efd22;
+  }
+  .copy-btn-apikey:hover { background: linear-gradient(90deg,#005bea,#0d6efd); }
+  .copy-tip-apikey {
+    position: fixed;
+    top: 90px;
+    right: 32px;
+    z-index: 9999;
+    background: #0d6efd;
+    color: #fff;
+    padding: 0.7em 1.5em;
+    border-radius: 2em;
+    font-size: 1.08em;
+    font-weight: 600;
+    box-shadow: 0 2px 16px 0 #0d6efd33;
+    opacity: 0.97;
+    display: none;
+    pointer-events: none;
+    letter-spacing: 1px;
+  }
+  @media (max-width: 900px) {
+    .copy-tip-apikey { right: 10px; top: 70px; font-size: 1em; padding: 0.5em 1em; }
+  }
+  .list-group-item { background: #23283a; color: #fff; border: none; font-size: 1.08rem; }
+  .form-label { color: #b2b8c6; font-weight: 600; }
+  .form-control {
+    background: #23283a;
+    color: #fff;
+    border: 1.5px solid #23283a;
+    border-radius: 1.2em;
+    font-size: 1.08rem;
+    margin-bottom: 1.2rem;
+  }
+  .form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 2px #0d6efd33;
+    background: #23283a;
+    color: #fff;
+  }
+  .btn-minimal {
+    width: 100%;
+    border-radius: 2em;
+    background: #0d6efd;
+    color: #fff;
+    font-weight: 700;
+    font-size: 1.1rem;
+    padding: 0.7em 0;
+    border: none;
+    box-shadow: 0 2px 12px 0 #0d6efd22;
+    transition: background 0.18s, box-shadow 0.18s;
+  }
+  .btn-minimal:hover {
+    background: #005bea;
+    box-shadow: 0 4px 24px 0 #0d6efd44;
+  }
+</style>
+<div class="d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+  <div class="card card-minimal">
+    <div class="logo-center">🦉</div>
+    <div class="title-center">个人中心</div>
+    <div class="info-card">
+      <div class="username-label">用户名</div>
+      <div class="username-value">{{ user.username }}</div>
+    </div>
+    <div class="info-card">
+      <div class="balance-label">余额</div>
+      <div class="balance-value">{{ user.balance }}</div>
+      <div class="balance-bar-bg">
+        <div class="balance-bar" style="width: {{ 100 if user.balance > 10 else (user.balance/10*100)|round(0) }}%;"></div>
+      </div>
+    </div>
+    <div class="info-card">
+      <div class="apikey-label">API Key</div>
+      <div class="apikey-value" id="apikey-value">{{ user.api_key }}</div>
+      <button class="copy-btn-apikey" onclick="copyApiKey()">复制</button>
+    </div>
+    <form method="post" action="/charge_page">
+      <label for="amount" class="form-label">充值金额</label>
+      <input type="number" step="0.01" class="form-control" id="amount" name="amount" required>
+      <button type="submit" class="btn btn-minimal">充值</button>
+    </form>
+    {% if msg %}<div class="alert alert-info mt-3 text-center">{{ msg }}</div>{% endif %}
+  </div>
+</div>
+<div class="copy-tip-apikey" id="copy-tip-apikey">API Key 已复制</div>
+<script>
+function copyApiKey() {
+  var apikey = document.getElementById('apikey-value').innerText.trim();
+  navigator.clipboard.writeText(apikey);
+  var tip = document.getElementById('copy-tip-apikey');
+  tip.style.display = 'block';
+  clearTimeout(window.copyTipTimeout2);
+  window.copyTipTimeout2 = setTimeout(function(){ tip.style.display = 'none'; }, 2000);
+}
+</script>
+{% endblock %} 
