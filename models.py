@@ -1,6 +1,7 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
+from datetime import datetime
 
 Base = declarative_base()
 
@@ -18,4 +19,5 @@ class Record(Base):
     user_id = Column(Integer, ForeignKey('users.id'))
     action = Column(String)  # 充值/识别等
     amount = Column(Float)
+    created_at = Column(DateTime, default=datetime.utcnow)
     user = relationship('User') 

@@ -15,6 +15,9 @@ import uvicorn
 import logging
 import base64
 from fastapi import status
+import random, string
+import hashlib
+from contextlib import asynccontextmanager
 
 logging.basicConfig(
     level=logging.INFO,
@@ -24,7 +27,22 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # 启动时执行
+    init_db()  # 确保这里能创建所有表
+    db = SessionLocal()
+    if not db.query(User).filter(User.username == "admin").first():
+        hashed = get_password_hash("admin")
+        api_key = create_api_key(db)
+        db_user = User(username="admin", hashed_password=hashed, api_key=api_key, balance=999999)
+        db.add(db_user)
+        db.commit()
+    db.close()
+    yield
+    # 关闭时执行（如有需要可加清理代码）
+
+app = FastAPI(lifespan=lifespan)
 ocr = ddddocr.DdddOcr()
 
 SECRET_KEY = "xmiocrsecretkey"
@@ -49,20 +67,17 @@ def get_password_hash(password):
 def verify_password(plain, hashed):
     return pwd_context.verify(plain, hashed)
 
-def create_api_key():
-    return str(uuid.uuid4())
-
-@app.on_event("startup")
-def on_startup():
-    init_db()
-    db = SessionLocal()
-    if not db.query(User).filter(User.username == "admin").first():
-        hashed = get_password_hash("admin")
-        api_key = create_api_key()
-        db_user = User(username="admin", hashed_password=hashed, api_key=api_key, balance=9999)
-        db.add(db_user)
-        db.commit()
-    db.close()
+def create_api_key(db=None):
+    while True:
+        raw = str(uuid.uuid4())
+        md5_part = hashlib.md5(raw.encode()).hexdigest()
+        key = f'ddddocr_{md5_part}'
+        # 保证唯一性
+        if db is not None:
+            if not db.query(User).filter(User.api_key == key).first():
+                return key
+        else:
+            return key
 
 @app.get("/")
 def index(request: Request):
@@ -104,11 +119,13 @@ async def register_page_post(request: Request):
     if db.query(User).filter(User.username == username).first():
         return templates.TemplateResponse("register.html", {"request": request, "msg": "用户名已存在"})
     hashed = get_password_hash(password)
-    api_key = create_api_key()
-    db_user = User(username=username, hashed_password=hashed, api_key=api_key)
+    api_key = create_api_key(db)
+    db_user = User(username=username, hashed_password=hashed, api_key=api_key, balance=10.0)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
+    db.add(Record(user_id=db_user.id, action="注册赠送", amount=10.0))
+    db.commit()
     db.close()
     return RedirectResponse("/login", status_code=status.HTTP_302_FOUND)
 
@@ -136,10 +153,11 @@ def me_page(request: Request):
     api_key = request.cookies.get("api_key")
     db = SessionLocal()
     user = db.query(User).filter(User.api_key == api_key).first()
+    records = db.query(Record).filter(Record.user_id == user.id).order_by(Record.id.desc()).limit(20).all() if user else []
     db.close()
     if not user:
         return RedirectResponse("/login")
-    return templates.TemplateResponse("me.html", {"request": request, "user": user, "msg": None})
+    return templates.TemplateResponse("me.html", {"request": request, "user": user, "msg": None, "records": records})
 
 @app.post("/charge_page")
 async def charge_page(request: Request):
