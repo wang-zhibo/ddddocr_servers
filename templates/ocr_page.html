@@ -1,15 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
 <style>
-  .card-minimal {
-    background: #181f2a;
-    border-radius: 1.5rem;
-    box-shadow: 0 4px 32px 0 #0d6efd11;
-    border: none;
-    padding: 2.5rem 2rem 2rem 2rem;
-    max-width: 440px;
-    margin: 0 auto;
-  }
   .logo-center { text-align: center; margin-bottom: 1.2rem; font-size: 2.2rem; }
   .title-center { text-align: center; color: #fff; font-weight: 800; font-size: 1.5rem; margin-bottom: 1.5rem; letter-spacing: 1px; }
   .form-label { color: #b2b8c6; font-weight: 600; }
@@ -55,7 +46,7 @@
   }
 </style>
 <div class="d-flex justify-content-center align-items-center" style="min-height: 80vh;">
-  <div class="card card-minimal">
+  <div class="bento-card" style="max-width: 440px; margin: 0 auto;">
     <div class="logo-center">🦉</div>
     <div class="title-center">验证码识别</div>
     <form method="post" action="/ocr_page" enctype="multipart/form-data" id="ocr-form">

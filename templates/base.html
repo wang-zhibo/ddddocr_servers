@@ -67,6 +67,31 @@
             .navbar-brand-tech { font-size: 1.1rem; }
             .nav-link-tech { font-size: 0.98rem; padding: 0.35em 1em; }
         }
+        /* Bento Grid 全局样式 */
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        .bento-card {
+            background: #181f2a;
+            border-radius: 1.5rem;
+            box-shadow: 0 4px 32px 0 #0d6efd11;
+            padding: 2rem 1.5rem;
+            color: #fff;
+            transition: box-shadow 0.22s, transform 0.22s;
+        }
+        .bento-card:hover {
+            box-shadow: 0 8px 48px 0 #0d6efd22;
+            transform: translateY(-4px) scale(1.01);
+        }
+        @media (max-width: 900px) {
+            .bento-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+        }
     </style>
 </head>
 <body>

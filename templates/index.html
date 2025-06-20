@@ -24,6 +24,7 @@
     filter: drop-shadow(0 2px 16px #0d6efd44);
   }
   .hero-title-minimal {
+    text-align: center;
     font-size: 2.6rem;
     font-weight: 900;
     background: linear-gradient(90deg,#0d6efd 10%,#00eaff 90%);
@@ -36,6 +37,7 @@
     line-height: 1.15;
   }
   .hero-slogan-minimal {
+    text-align: center;
     font-size: 1.25rem;
     color: #0d6efd;
     font-weight: 600;
@@ -68,16 +70,53 @@
     .hero-slogan-minimal { font-size: 1rem; }
     .hero-btns-minimal a { font-size: 1rem; padding: 0.6em 1.2em; }
   }
+  .bento-card-link {
+      text-decoration: none;
+      color: inherit;
+      display: block;
+      height: 100%;
+  }
+  .bento-card h3 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #0d6efd;
+      margin-bottom: 1rem;
+  }
+  .bento-card p {
+      color: #b2b8c6;
+      font-size: 1rem;
+  }
 </style>
-<div class="hero-minimal">
-  <div>
+
+<div class="text-center" style="margin-top: 5vh; margin-bottom: 5vh;">
     <div class="hero-title-minimal">ddddocr 验证码识别平台</div>
     <div class="hero-slogan-minimal">AI驱动 · 极速识别 · 专业API服务</div>
-  </div>
-  <div class="hero-btns-minimal">
-    <a href="/register">注册</a>
-    <a href="/login">登录</a>
-    <a href="/ocr_page">演示</a>
-  </div>
+</div>
+
+<div class="bento-grid">
+    <div class="bento-card">
+        <a href="/register" class="bento-card-link">
+            <h3>🚀 快速注册</h3>
+            <p>只需用户名和密码，立即加入我们，开启智能识别之旅。</p>
+        </a>
+    </div>
+    <div class="bento-card">
+        <a href="/login" class="bento-card-link">
+            <h3>🔑 用户登录</h3>
+            <p>已是会员？请登录以访问您的个人中心和API密钥。</p>
+        </a>
+    </div>
+    <div class="bento-card">
+        <a href="/ocr_page" class="bento-card-link">
+            <h3>📸 功能演示</h3>
+            <p>上传验证码图片，即刻体验我们强大、精准的识别服务。</p>
+        </a>
+    </div>
+    <div class="bento-card">
+        <a href="/api_demo" class="bento-card-link">
+            <h3>💻 API示例</h3>
+            <p>查看多语言API调用代码，轻松将识别能力集成到您的应用中。</p>
+        </a>
+    </div>
 </div>
 {% endblock %} 

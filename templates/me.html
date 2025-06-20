@@ -1,28 +1,24 @@
 {% extends 'base.html' %}
 {% block content %}
 <style>
-  .card-minimal {
-    background: #181f2a;
-    border-radius: 1.5rem;
-    box-shadow: 0 4px 32px 0 #0d6efd11;
-    border: none;
-    padding: 2.5rem 2rem 2rem 2rem;
-    max-width: 900px;
-    margin: 0 auto;
-  }
   .logo-center { text-align: center; margin-bottom: 1.2rem; font-size: 2.2rem; }
   .title-center { text-align: center; color: #fff; font-weight: 800; font-size: 1.5rem; margin-bottom: 1.5rem; letter-spacing: 1px; }
-  .info-card {
-    background: #23283a;
-    border-radius: 1em;
-    padding: 1.2em 1.5em;
-    margin-bottom: 1.2em;
-    box-shadow: 0 2px 12px 0 #0d6efd11;
-    color: #fff;
-    font-size: 1.08rem;
-    word-break: break-all;
-    position: relative;
+
+  /* Custom grid for this page */
+  .me-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+      max-width: 900px;
+      margin: 2rem auto;
   }
+  .me-grid .bento-card {
+      padding: 1.5rem;
+  }
+  .bento-full-width {
+      grid-column: 1 / -1; /* Span full width */
+  }
+
   .username-label { color: #b2b8c6; font-weight: 600; margin-bottom: 0.5em; }
   .username-value { font-size: 1.2em; color: #fff; font-weight: bold; }
   .balance-label { color: #b2b8c6; font-weight: 600; margin-bottom: 0.5em; }
@@ -76,10 +72,7 @@
     pointer-events: none;
     letter-spacing: 1px;
   }
-  @media (max-width: 900px) {
-    .copy-tip-apikey { right: 10px; top: 70px; font-size: 1em; padding: 0.5em 1em; }
-  }
-  .list-group-item { background: #23283a; color: #fff; border: none; font-size: 1.08rem; }
+
   .form-label { color: #b2b8c6; font-weight: 600; }
   .form-control {
     background: #23283a;
@@ -111,61 +104,72 @@
     background: #005bea;
     box-shadow: 0 4px 24px 0 #0d6efd44;
   }
+
+  @media (max-width: 900px) {
+    .copy-tip-apikey { right: 10px; top: 70px; font-size: 1em; padding: 0.5em 1em; }
+    .me-grid {
+        grid-template-columns: 1fr;
+    }
+  }
 </style>
-<div class="d-flex justify-content-center align-items-center" style="min-height: 80vh;">
-  <div class="card card-minimal">
-    <div class="logo-center">🦉</div>
-    <div class="title-center">个人中心</div>
-    <div class="info-card">
-      <div class="username-label">用户名</div>
-      <div class="username-value">{{ user.username }}</div>
+<div class="logo-center">🦉</div>
+<div class="title-center">个人中心</div>
+
+<div class="me-grid">
+    <div class="bento-card">
+        <div class="username-label">用户名</div>
+        <div class="username-value">{{ user.username }}</div>
     </div>
-    <div class="info-card">
-      <div class="balance-label">余额</div>
-      <div class="balance-value">{{ user.balance }}</div>
-      <div class="balance-bar-bg">
-        <div class="balance-bar" style="width: {{ 100 if user.balance > 10 else (user.balance/10*100)|round(0) }}%;"></div>
-      </div>
+
+    <div class="bento-card">
+        <div class="balance-label">余额</div>
+        <div class="balance-value">{{ user.balance }}</div>
+        <div class="balance-bar-bg">
+            <div class="balance-bar" style="width: {{ 100 if user.balance > 10 else (user.balance/10*100)|round(0) }}%;"></div>
+        </div>
     </div>
-    <div class="info-card">
-      <div class="apikey-label">API Key</div>
-      <div class="apikey-value" id="apikey-value">{{ user.api_key }}</div>
-      <button class="copy-btn-apikey" onclick="copyApiKey()">复制</button>
+
+    <div class="bento-card bento-full-width" style="position: relative;">
+        <div class="apikey-label">API Key</div>
+        <div class="apikey-value" id="apikey-value">{{ user.api_key }}</div>
+        <button class="copy-btn-apikey" onclick="copyApiKey()">复制</button>
     </div>
-    <form method="post" action="/charge_page">
-      <label for="amount" class="form-label">充值金额</label>
-      <input type="number" step="0.01" class="form-control" id="amount" name="amount" required>
-      <button type="submit" class="btn btn-minimal">充值</button>
-    </form>
-    {% if msg %}<div class="alert alert-info mt-3 text-center">{{ msg }}</div>{% endif %}
-  </div>
-</div>
-<!-- 新增：消耗记录表格 -->
-<div class="card card-minimal mt-4" style="max-width:900px;margin:0 auto;">
-  <div class="title-center" style="font-size:1.2rem;margin-bottom:1rem;">最近20条消耗/充值记录</div>
-  <div style="overflow-x:auto;">
-    <table class="table table-dark table-striped" style="background:#23283a;border-radius:1em;overflow:hidden;">
-      <thead>
-        <tr>
-          <th scope="col">#</th>
-          <th scope="col">类型</th>
-          <th scope="col">金额</th>
-          <th scope="col">时间</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for r in records %}
-        <tr>
-          <td>{{ r.id }}</td>
-          <td>{{ r.action }}</td>
-          <td>{% if r.amount < 0 %}<span style="color:#ff4d4f">{{ r.amount }}</span>{% else %}<span style="color:#0d6efd">+{{ r.amount }}</span>{% endif %}</td>
-          <td>{{ r.created_at.strftime('%Y-%m-%d %H:%M:%S') if r.created_at else '' }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    {% if records|length == 0 %}<div class="text-center" style="color:#b2b8c6;">暂无记录</div>{% endif %}
-  </div>
+
+    <div class="bento-card bento-full-width">
+        <form method="post" action="/charge_page">
+            <label for="amount" class="form-label">充值金额</label>
+            <input type="number" step="0.01" class="form-control" id="amount" name="amount" required>
+            <button type="submit" class="btn btn-minimal">充值</button>
+        </form>
+        {% if msg %}<div class="alert alert-info mt-3 text-center">{{ msg }}</div>{% endif %}
+    </div>
+
+    <div class="bento-card bento-full-width">
+        <div class="title-center" style="font-size:1.2rem;margin-bottom:1rem;">最近20条消耗/充值记录</div>
+        <div style="overflow-x:auto;">
+            <table class="table table-dark table-striped" style="background:#23283a;border-radius:1em;overflow:hidden;">
+            <thead>
+                <tr>
+                <th scope="col">#</th>
+                <th scope="col">类型</th>
+                <th scope="col">金额</th>
+                <th scope="col">时间</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in records %}
+                <tr>
+                <td>{{ r.id }}</td>
+                <td>{{ r.action }}</td>
+                <td>{% if r.amount < 0 %}<span style="color:#ff4d4f">{{ r.amount }}</span>{% else %}<span style="color:#0d6efd">+{{ r.amount }}</span>{% endif %}</td>
+                <td>{{ r.created_at.strftime('%Y-%m-%d %H:%M:%S') if r.created_at else '' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            </table>
+            {% if records|length == 0 %}<div class="text-center" style="color:#b2b8c6;">暂无记录</div>{% endif %}
+        </div>
+    </div>
 </div>
 <div class="copy-tip-apikey" id="copy-tip-apikey">API Key 已复制</div>
 <script>
